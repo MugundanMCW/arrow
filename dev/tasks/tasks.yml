@@ -244,9 +244,11 @@ tasks:
     ci: github
     template: python-wheels/github.windows.yml
     params:
+      arch: "amd64"
       python_version: "{{ python_version }}"
       python_abi_tag: "{{ abi_tag }}"
-      arch: "amd64"
+      runs_on: "windows-latest"
+      vcpkg_arch: "amd64"
     artifacts:
       - pyarrow-{no_rc_version}-{{ python_tag }}-{{ abi_tag }}-win_amd64.whl
 
@@ -254,9 +256,11 @@ tasks:
     ci: github
     template: python-wheels/github.windows.yml
     params:
+      arch: "arm64"
       python_version: "{{ python_version }}"
       python_abi_tag: "{{ abi_tag }}"
-      arch: "arm64"
+      runs_on: "windows-11-arm"
+      vcpkg_arch: "arm64"
     artifacts:
       - pyarrow-{no_rc_version}-{{ python_tag }}-{{ abi_tag }}-win_arm64.whl
 
