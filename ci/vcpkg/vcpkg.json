@@ -21,7 +21,7 @@
     "utf8proc",
     {
       "name": "xsimd",
-      "platform": "!arm64"
+      "platform": "!(arm64 & windows)"
     },
     "zlib",
     "zstd",
