@@ -21,12 +21,14 @@
 
 jobs:
   build:
-    name: "Build wheel for Windows"
-    runs-on: windows-2022
+    name: "Build wheel for Windows {{ arch }}"
+    runs-on: "{{ runs_on }}"
     env:
       # archery uses this environment variable
       PYTHON: "{{ python_version }}"
       PYTHON_ABI_TAG: "{{ python_abi_tag }}"
+      ARCH: "{{ arch }}"
+      VCPKG_ARCH: "{{ vcpkg_arch }}"
       # this is a private repository at the moment (mostly because of licensing
       # consideration of windows images with visual studio), but anyone can
       # recreate the image by manually building it via:
@@ -72,7 +74,7 @@ jobs:
           if errorlevel 1 (
             archery docker build --no-pull %TEST_IMAGE_PREFIX%-wheel-windows-vs2022 || exit /B 1
           )
-          archery docker run --no-build -e SETUPTOOLS_SCM_PRETEND_VERSION={{ arrow.no_rc_version }} %TEST_IMAGE_PREFIX%-wheel-windows-vs2022
+          archery docker run --no-build -e SETUPTOOLS_SCM_PRETEND_VERSION={{ arrow.no_rc_version }} -e ARCH=%ARCH% -e VCPKG_ARCH=%VCPKG_ARCH% %TEST_IMAGE_PREFIX%-wheel-windows-vs2022
 
       - uses: actions/upload-artifact@v4
         with:
@@ -87,7 +89,7 @@ jobs:
           if errorlevel 1 (
             archery docker build --no-pull %TEST_IMAGE_PREFIX%-wheel-windows-test || exit /B 1
           )
-          archery docker run %TEST_IMAGE_PREFIX%-wheel-windows-test
+          archery docker run -e ARCH=%ARCH% %TEST_IMAGE_PREFIX%-wheel-windows-test
 
       {{ macros.github_upload_releases("arrow/python/repaired_wheels/*.whl")|indent }}
       {{ macros.github_upload_wheel_scientific_python("arrow/python/repaired_wheels/*.whl")|indent }}
