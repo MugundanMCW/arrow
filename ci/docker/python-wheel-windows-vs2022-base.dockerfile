@@ -67,6 +67,7 @@ RUN `
   --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" `
   --add Microsoft.VisualStudio.Component.VC.CoreBuildTools `
   --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+  --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 `
   --add Microsoft.VisualStudio.Component.Windows11SDK.26100 `
   --add Microsoft.VisualStudio.Component.VC.CMake.Project `
   || IF "%ERRORLEVEL%"=="3010" EXIT 0) `
@@ -110,9 +111,10 @@ RUN bash arrow/ci/scripts/install_vcpkg.sh /c/vcpkg %vcpkg% && `
 # VCPKG_FORCE_SYSTEM_BINARIES=1 spare around ~750MB of image size if the system
 # cmake's and ninja's versions are recent enough
 ARG build_type=release
+ARG vcpkg_arch=amd64
 ENV CMAKE_BUILD_TYPE=${build_type} `
   VCPKG_OVERLAY_TRIPLETS=C:\\arrow\\ci\\vcpkg `
-  VCPKG_DEFAULT_TRIPLET=amd64-windows-static-md-${build_type} `
+  VCPKG_DEFAULT_TRIPLET=${vcpkg_arch}-windows-static-md-${build_type} `
   VCPKG_FEATURE_FLAGS="manifests"
 COPY ci/vcpkg/vcpkg.json arrow/ci/vcpkg/
 # cannot use the S3 feature here because while aws-sdk-cpp=1.9.160 contains
