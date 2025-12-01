@@ -263,7 +263,7 @@ tasks:
       vcpkg_arch: "arm64"
     artifacts:
       - pyarrow-{no_rc_version}-{{ python_tag }}-{{ abi_tag }}-win_arm64.whl
-
+{% endfor %}
 {############################ Python sdist ####################################}
 
   python-sdist:
