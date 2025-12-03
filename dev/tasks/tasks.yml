@@ -251,7 +251,7 @@ tasks:
 
   wheel-windows-{{ python_tag }}-{{ abi_tag }}-arm64:
     ci: github
-    template: python-wheels/github.windows.arm64.yml  # Changed from github.windows.yml
+    template: python-wheels/github.windows.arm64.yml
     params:
       arch: "arm64"
       python_version: "{{ python_version }}"
