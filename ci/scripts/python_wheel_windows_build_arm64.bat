@@ -106,7 +106,7 @@ cmake ^
     -DPARQUET_REQUIRE_ENCRYPTION=%PARQUET_REQUIRE_ENCRYPTION% ^
     -DVCPKG_MANIFEST_MODE=OFF ^
     -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET% ^
-    -Dxsimd_SOURCE=BUNDLED ^
+    -DARROW_SIMD_LEVEL=NONE ^
     -G "%CMAKE_GENERATOR%" ^
     C:\arrow\cpp || exit /B 1
 cmake --build . --config %CMAKE_BUILD_TYPE% --target install || exit /B 1
