@@ -58,18 +58,18 @@ jobs:
           copy arrow\ci\vcpkg\arm64-windows-*.cmake C:\vcpkg\triplets\community\
       
       - name: Install vcpkg dependencies
-        shell: powershell
+        shell: cmd
         run: |
-          cd arrow/ci/vcpkg
-          & "C:/vcpkg/vcpkg.exe" install `
-            --clean-after-build `
-            --x-install-root=C:/vcpkg/installed `
-            --x-manifest-root=. `
-            --x-feature=flight `
-            --x-feature=gcs `
-            --x-feature=json `
-            --x-feature=orc `
-            --x-feature=parquet `
+          cd arrow\ci\vcpkg
+          C:\vcpkg\vcpkg.exe install ^
+            --binarysource=clear ^
+            --binarysource="x-gha,readwrite" ^
+            --x-install-root=C:\vcpkg\installed ^
+            --x-manifest-root=. ^
+            --x-feature=flight ^
+            --x-feature=json ^
+            --x-feature=orc ^
+            --x-feature=parquet ^
             --x-feature=s3
 
       - name: Build Arrow C++ and PyArrow wheel
