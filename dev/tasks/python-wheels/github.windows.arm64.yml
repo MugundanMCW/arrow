@@ -45,11 +45,6 @@ jobs:
           python-version: "{{ python_version }}"
           architecture: "ARM64"
       
-      - name: Setup vcpkg
-        shell: bash
-        run: |
-          arrow/ci/scripts/install_vcpkg.sh /c/vcpkg
-      
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
         run: |
