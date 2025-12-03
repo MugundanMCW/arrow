@@ -85,15 +85,6 @@ jobs:
             --x-feature=orc ^
             --x-feature=parquet ^
             --x-feature=s3
-      
-      - name: Cache ccache
-        uses: actions/cache@v4
-        with:
-          path: {% raw %}${{ env.CCACHE_DIR }}{% endraw %}
-          key: python-ccache-windows-arm64-{% raw %}${{ env.CACHE_VERSION }}{% endraw %}-{% raw %}${{ hashFiles('cpp/**') }}{% endraw %}
-          restore-keys: python-ccache-windows-arm64-{% raw %}${{ env.CACHE_VERSION }}{% endraw %}-
-        env:
-          CACHE_VERSION: "2025-12-03.1"
 
       - name: Build Arrow C++ and PyArrow wheel
         shell: cmd
