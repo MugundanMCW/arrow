@@ -44,6 +44,13 @@ jobs:
         with:
           python-version: "{{ python_version }}"
           architecture: "ARM64"
+
+      - name: Cache vcpkg installed artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg\installed
+          key: vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/*.cmake') }}
       
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
