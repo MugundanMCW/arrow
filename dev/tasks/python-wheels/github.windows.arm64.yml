@@ -50,8 +50,8 @@ jobs:
         with:
           path: |
             C:\vcpkg\installed
-          key: vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/*.cmake') }}
-      
+          key: vcpkg-installed-windows-arm64-{{ arrow.no_rc_version }}
+
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
         run: |
