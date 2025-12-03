@@ -48,17 +48,17 @@ jobs:
       - name: Setup vcpkg
         shell: bash
         run: |
-          ci/scripts/install_vcpkg.sh /c/vcpkg
+          arrow/ci/scripts/install_vcpkg.sh /c/vcpkg
       
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
         run: |
-          copy ci\vcpkg\arm64-windows-*.cmake C:\vcpkg\triplets\community\
+          copy arrow\ci\vcpkg\arm64-windows-*.cmake C:\vcpkg\triplets\community\
       
       - name: Install vcpkg dependencies
         shell: cmd
         run: |
-          cd ci\vcpkg
+          cd arrow\ci\vcpkg
           C:\vcpkg\vcpkg.exe install ^
             --clean-after-build ^
             --x-install-root=C:\vcpkg\installed ^
@@ -75,7 +75,7 @@ jobs:
         env:
           SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
         run: |
-          call "ci\scripts\python_wheel_windows_build_arm64.bat"
+          call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
       
       - uses: actions/upload-artifact@v4
         with:
