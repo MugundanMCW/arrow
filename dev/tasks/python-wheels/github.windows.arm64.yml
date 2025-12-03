@@ -26,7 +26,7 @@ jobs:
     env:
       PYTHON_CMD: "py -{{ python_version }}"
       CMAKE_BUILD_TYPE: release
-    
+
     steps:
       - name: Disable Crash Dialogs
         run: |
@@ -38,13 +38,13 @@ jobs:
             /f
       
       {{ macros.github_checkout_arrow()|indent }}
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "{{ python_version }}"
           architecture: "ARM64"
-      
+
       - name: Install ccache
         shell: bash
         run: |
@@ -89,12 +89,12 @@ jobs:
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: python-ccache-windows-arm64-${{ env.CACHE_VERSION }}-${{ hashFiles('cpp/**') }}
-          restore-keys: python-ccache-windows-arm64-${{ env.CACHE_VERSION }}-
+          path: {% raw %}${{ env.CCACHE_DIR }}{% endraw %}
+          key: python-ccache-windows-arm64-{% raw %}${{ env.CACHE_VERSION }}{% endraw %}-{% raw %}${{ hashFiles('cpp/**') }}{% endraw %}
+          restore-keys: python-ccache-windows-arm64-{% raw %}${{ env.CACHE_VERSION }}{% endraw %}-
         env:
           CACHE_VERSION: "2025-12-03.1"
-      
+
       - name: Build Arrow C++ and PyArrow wheel
         shell: cmd
         env:
@@ -106,6 +106,6 @@ jobs:
         with:
           name: wheel
           path: arrow/python/repaired_wheels/*.whl
-      
+
       {{ macros.github_upload_releases("arrow/python/repaired_wheels/*.whl")|indent }}
       {{ macros.github_upload_wheel_scientific_python("arrow/python/repaired_wheels/*.whl")|indent }}
