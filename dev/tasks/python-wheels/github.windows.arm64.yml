@@ -49,9 +49,10 @@ jobs:
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ${{ steps.ccache-info.outputs.dir }}
+          path: '{{ "${{ steps.ccache-info.outputs.dir }}" }}'
           key: cpp-ccache-windows-arm64-${{ hashFiles('cpp/**') }}
           restore-keys: cpp-ccache-windows-arm64-
+
 
       # ------------------------------------------------ #
 
