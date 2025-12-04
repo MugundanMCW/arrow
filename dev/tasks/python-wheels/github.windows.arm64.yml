@@ -71,19 +71,19 @@ jobs:
             --x-feature=orc ^
             --x-feature=parquet ^
             --x-feature=s3
-      - name: Build Arrow C++ and PyArrow wheel
-        shell: cmd
-        env:
-          SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
-        run: |
-          call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
+      # - name: Build Arrow C++ and PyArrow wheel
+      #   shell: cmd
+      #   env:
+      #     SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
+      #   run: |
+      #     call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
       - name: ccache stats
         if: always()
         shell: bash
         run: ccache -s
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheel
-          path: arrow/python/repaired_wheels/*.whl
-      {{ macros.github_upload_releases("arrow/python/repaired_wheels/*.whl")|indent }}
-      {{ macros.github_upload_wheel_scientific_python("arrow/python/repaired_wheels/*.whl")|indent }}
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: wheel
+      #     path: arrow/python/repaired_wheels/*.whl
+      # {{ macros.github_upload_releases("arrow/python/repaired_wheels/*.whl")|indent }}
+      # {{ macros.github_upload_wheel_scientific_python("arrow/python/repaired_wheels/*.whl")|indent }}
