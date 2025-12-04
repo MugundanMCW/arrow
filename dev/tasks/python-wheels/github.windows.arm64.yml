@@ -41,20 +41,16 @@ jobs:
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: {% raw %}"${{ steps.ccache-info.outputs.dir }}"{% endraw %}
-          
-          key: {% raw %}"cpp-ccache-windows-arm64-${{ hashFiles('cpp/**') }}"{% endraw %}
-          
+          path: "${{ steps.ccache-info.outputs.dir }}"          
+          key: "cpp-ccache-windows-arm64-${{ hashFiles('cpp/**') }}"          
           restore-keys: cpp-ccache-windows-arm64-
       # ------------------------------------------------ #
       - name: Cache vcpkg installed artifacts
         uses: actions/cache@v4
         with:
           path: C:\vcpkg\installed
-          key: {% raw %}"vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/vcpkg.json', 'arrow/ci/vcpkg/arm64-windows-*.cmake') }}"{% endraw %}
-          restore-keys: |
-            vcpkg-installed-windows-arm64-
-
+          key: "vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/vcpkg.json', 'arrow/ci/vcpkg/arm64-windows-*.cmake') }}"          
+          restore-keys: vcpkg-installed-windows-arm64-
 
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
