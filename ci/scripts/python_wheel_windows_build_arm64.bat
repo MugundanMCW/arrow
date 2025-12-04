@@ -19,24 +19,32 @@
 
 echo "Building windows ARM64 wheel..."
 
+@REM Infer paths from GitHub workspace
+set ARROW_SRC=%GITHUB_WORKSPACE%\arrow
+set ARROW_BUILD=%GITHUB_WORKSPACE%\arrow-build
+set ARROW_DIST=%GITHUB_WORKSPACE%\arrow-dist
+
+echo "Arrow source: %ARROW_SRC%"
+echo "Arrow build : %ARROW_BUILD%"
+echo "Arrow dist  : %ARROW_DIST%"
+
 @REM List installed Pythons
 py -0p
 
 %PYTHON_CMD% -m sysconfig || exit /B 1
 
 @REM Setup ARM64 cross-compilation environment
-@REM Try Enterprise first, then BuildTools
 call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsarm64.bat"
 @echo on
 
 echo "=== Clear output directories and leftovers ==="
-del /s /q C:\arrow-build 2>nul
-del /s /q C:\arrow-dist 2>nul
-del /s /q C:\arrow\python\dist 2>nul
-del /s /q C:\arrow\python\build 2>nul
-del /s /q C:\arrow\python\repaired_wheels 2>nul
-del /s /q C:\arrow\python\pyarrow\*.so 2>nul
-del /s /q C:\arrow\python\pyarrow\*.so.* 2>nul
+del /s /q %ARROW_BUILD% 2>nul
+del /s /q %ARROW_DIST% 2>nul
+del /s /q %ARROW_SRC%\python\dist 2>nul
+del /s /q %ARROW_SRC%\python\build 2>nul
+del /s /q %ARROW_SRC%\python\repaired_wheels 2>nul
+del /s /q %ARROW_SRC%\python\pyarrow\*.so 2>nul
+del /s /q %ARROW_SRC%\python\pyarrow\*.so.* 2>nul
 
 echo "=== Building Arrow C++ libraries for ARM64 ==="
 set ARROW_ACERO=ON
@@ -65,8 +73,8 @@ set VCPKG_ROOT=C:\vcpkg
 set VCPKG_FEATURE_FLAGS=-manifests
 set VCPKG_TARGET_TRIPLET=arm64-windows-static-md-%CMAKE_BUILD_TYPE%
 
-mkdir C:\arrow-build
-pushd C:\arrow-build
+mkdir %ARROW_BUILD%
+pushd %ARROW_BUILD%
 cmake ^
     -DARROW_ACERO=%ARROW_ACERO% ^
     -DARROW_BUILD_SHARED=ON ^
@@ -98,7 +106,7 @@ cmake ^
     -DARROW_WITH_ZLIB=%ARROW_WITH_ZLIB% ^
     -DARROW_WITH_ZSTD=%ARROW_WITH_ZSTD% ^
     -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ^
-    -DCMAKE_INSTALL_PREFIX=C:\arrow-dist ^
+    -DCMAKE_INSTALL_PREFIX=%ARROW_DIST% ^
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=%CMAKE_INTERPROCEDURAL_OPTIMIZATION% ^
     -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake ^
     -DCMAKE_UNITY_BUILD=%CMAKE_UNITY_BUILD% ^
@@ -108,7 +116,7 @@ cmake ^
     -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET% ^
     -DARROW_SIMD_LEVEL=NONE ^
     -G "%CMAKE_GENERATOR%" ^
-    C:\arrow\cpp || exit /B 1
+    "%ARROW_SRC%\cpp" || exit /B 1
 cmake --build . --config %CMAKE_BUILD_TYPE% --target install || exit /B 1
 popd
 
@@ -129,19 +137,12 @@ set PYARROW_WITH_PARQUET=%ARROW_PARQUET%
 set PYARROW_WITH_PARQUET_ENCRYPTION=%PARQUET_REQUIRE_ENCRYPTION%
 set PYARROW_WITH_SUBSTRAIT=%ARROW_SUBSTRAIT%
 set PYARROW_WITH_S3=%ARROW_S3%
-set ARROW_HOME=C:\arrow-dist
-set CMAKE_PREFIX_PATH=C:\arrow-dist
+set ARROW_HOME=%ARROW_DIST%
+set CMAKE_PREFIX_PATH=%ARROW_DIST%
 
-pushd C:\arrow\python
+pushd %ARROW_SRC%\python
 
-@REM Build wheel
 %PYTHON_CMD% setup.py bdist_wheel || exit /B 1
-
-@REM Repair the wheel with delvewheel
-@REM
-@REM Since we bundled the Arrow C++ libraries ourselves, we only need to
-@REM mangle msvcp140.dll so as to avoid ABI issues when msvcp140.dll is
-@REM required by multiple Python libraries in the same process.
 %PYTHON_CMD% -m pip install delvewheel || exit /B 1
 
 for /f %%i in ('dir dist\pyarrow-*.whl /B') do (set WHEEL_NAME=%cd%\dist\%%i) || exit /B 1
