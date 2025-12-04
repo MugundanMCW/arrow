@@ -1,20 +1,3 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
 {% import 'macros.jinja' as macros with context %}
 {{ macros.github_header() }}
 
@@ -45,12 +28,39 @@ jobs:
           python-version: "{{ python_version }}"
           architecture: "ARM64"
 
+      # ---------------- ccache setup ---------------- #
+
+      - name: Install ccache
+        shell: bash
+        run: |
+          ci/scripts/install_ccache.sh 4.12.1 /usr
+
+      - name: Setup ccache
+        shell: bash
+        run: |
+          ci/scripts/ccache_setup.sh
+
+      - name: ccache info
+        id: ccache-info
+        shell: bash
+        run: |
+          echo "dir=$(ccache --get-config cache_dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.ccache-info.outputs.dir }}
+          key: cpp-ccache-windows-arm64-${{ hashFiles('cpp/**') }}
+          restore-keys: cpp-ccache-windows-arm64-
+
+      # ------------------------------------------------ #
+
       - name: Cache vcpkg installed artifacts
         uses: actions/cache@v4
         with:
-          path: |
-            C:\vcpkg\installed
-          key: vcpkg-installed-windows-arm64-{{ arrow.no_rc_version }}
+          path: C:\vcpkg\installed
+          key: vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/vcpkg.json', 'arrow/ci/vcpkg/arm64-windows-*.cmake') }}
+          restore-keys: vcpkg-installed-windows-arm64-
 
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
@@ -78,7 +88,12 @@ jobs:
           SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
         run: |
           call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
-      
+
+      - name: ccache stats
+        if: always()
+        shell: bash
+        run: ccache -s
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheel
