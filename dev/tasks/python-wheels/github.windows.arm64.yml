@@ -71,12 +71,12 @@ jobs:
             --x-feature=orc ^
             --x-feature=parquet ^
             --x-feature=s3
-      # - name: Build Arrow C++ and PyArrow wheel
-      #   shell: cmd
-      #   env:
-      #     SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
-      #   run: |
-      #     call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
+      - name: Build Arrow C++ and PyArrow wheel
+        shell: cmd
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION: "{{ arrow.no_rc_version }}"
+        run: |
+          call "arrow\ci\scripts\python_wheel_windows_build_arm64.bat"
       - name: ccache stats
         if: always()
         shell: bash
