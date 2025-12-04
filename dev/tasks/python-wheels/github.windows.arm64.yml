@@ -51,9 +51,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\vcpkg\installed
-          key: "vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/vcpkg.json', 'arrow/ci/vcpkg/arm64-windows-*.cmake') }}"
+          key: {% raw %}"vcpkg-installed-windows-arm64-${{ hashFiles('arrow/ci/vcpkg/vcpkg.json', 'arrow/ci/vcpkg/arm64-windows-*.cmake') }}"{% endraw %}
           restore-keys: |
             vcpkg-installed-windows-arm64-
+
 
       - name: Copy vcpkg ARM64 triplet files
         shell: cmd
