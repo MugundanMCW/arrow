@@ -71,7 +71,7 @@ set CMAKE_UNITY_BUILD=ON
 set VCPKG_ROOT=C:\vcpkg
 set VCPKG_FEATURE_FLAGS=-manifests
 set VCPKG_INSTALL_OPTIONS=--only-binarycaching
-set VCPKG_TARGET_TRIPLET=arm64-windows-static-md-release
+set VCPKG_TARGET_TRIPLET=arm64-windows-static-md
 
 mkdir %ARROW_BUILD%
 pushd %ARROW_BUILD%
