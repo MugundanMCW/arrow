@@ -240,7 +240,8 @@ def _create_importable_pyarrow(pyarrow_pkg, source_dir, install_pyarrow_dir):
     for artifact in sorted(install_pyarrow_dir.iterdir()):
         if not artifact.is_file() or artifact.suffix == ".pyi":
             continue
-
+        if artifact.suffix.lower() == ".dll":
+            continue  # DLLs get locked on Windows; locate via PATH instead
         destination = pyarrow_pkg / artifact.name
         if not destination.exists():
             _link_or_copy(artifact, destination)
@@ -268,9 +269,12 @@ if __name__ == "__main__":
         pyarrow_pkg = Path(tmpdir) / "pyarrow"
         pyarrow_pkg.mkdir()
         _create_importable_pyarrow(pyarrow_pkg, source_dir, install_pyarrow_dir)
-
+       # On Windows, Arrow's DLLs must be on PATH for .pyd imports to resolve them.
+        old_path = os.environ.get("PATH", "")
+        os.environ["PATH"] = str(install_pyarrow_dir) + os.pathsep + old_path
         sys.path.insert(0, tmpdir)
         try:
             add_docstrings_to_stubs(install_pyarrow_dir)
         finally:
             sys.path.pop(0)
+            os.environ["PATH"] = old_path
