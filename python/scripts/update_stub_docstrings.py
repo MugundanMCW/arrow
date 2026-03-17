@@ -265,14 +265,14 @@ if __name__ == "__main__":
         sys.exit(0)
 
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
-            pyarrow_pkg = Path(tmpdir) / "pyarrow"
-            pyarrow_pkg.mkdir()
-            _create_importable_pyarrow(pyarrow_pkg, source_dir, install_pyarrow_dir)
-            sys.path.insert(0, tmpdir)
-            try:
-                add_docstrings_to_stubs(install_pyarrow_dir)
-            finally:
-                sys.path.pop(0)
-                for key in list(sys.modules):
-                    if key == "pyarrow" or key.startswith("pyarrow."):
-                        del sys.modules[key]
+        pyarrow_pkg = Path(tmpdir) / "pyarrow"
+        pyarrow_pkg.mkdir()
+        _create_importable_pyarrow(pyarrow_pkg, source_dir, install_pyarrow_dir)
+        sys.path.insert(0, tmpdir)
+        try:
+            add_docstrings_to_stubs(install_pyarrow_dir)
+        finally:
+            sys.path.pop(0)
+            for key in list(sys.modules):
+                if key == "pyarrow" or key.startswith("pyarrow."):
+                    del sys.modules[key]
