@@ -273,6 +273,4 @@ if __name__ == "__main__":
             add_docstrings_to_stubs(install_pyarrow_dir)
         finally:
             sys.path.pop(0)
-            for key in list(sys.modules):
-                if key == "pyarrow" or key.startswith("pyarrow."):
-                    del sys.modules[key]
+
