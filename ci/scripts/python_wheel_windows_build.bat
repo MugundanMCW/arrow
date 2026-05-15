@@ -34,10 +34,14 @@ if "%arch%"=="ARM64" (
     set VCPKG_TARGET_TRIPLET=arm64-windows-static-md
     set ARROW_SRC=%GITHUB_WORKSPACE%\arrow
     set ARROW_DIST=%GITHUB_WORKSPACE%\arrow-dist
+    set XSIMD_DIR=%GITHUB_WORKSPACE%\xsimd
+
     set CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
     set UTF8PROC_SOURCE=-Dutf8proc_SOURCE=BUNDLED
-    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=NONE -DARROW_RUNTIME_SIMD_LEVEL=NONE -DARROW_USE_XSIMD=OFF -DARROW_WITH_UTF8PROC=ON
-    set XSIMD_SOURCE=
+
+    REM Enable xsimd on ARM64 using latest checkout
+    set ARROW_SIMD_OPTIONS=-DARROW_WITH_UTF8PROC=ON
+    set XSIMD_SOURCE=-Dxsimd_SOURCE=%XSIMD_DIR%
 ) else (
     set CMAKE_PLATFORM=x64
     set VCVARS_BAT=C:\Program Files ^(x86^)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
@@ -60,6 +64,15 @@ del /s /q C:\arrow\python\pyarrow\*.so.*
 
 call "%VCVARS_BAT%"
 @echo on
+
+if "%arch%"=="ARM64" (
+    if not exist "%XSIMD_DIR%" (
+        echo "Cloning latest xsimd..."
+        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /B 1
+    ) else (
+        echo "Using existing xsimd checkout at %XSIMD_DIR%"
+    )
+)
 
 echo "=== (%PYTHON%) Building Arrow C++ libraries ==="
 
