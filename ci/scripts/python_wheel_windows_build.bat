@@ -40,7 +40,7 @@ if "%arch%"=="ARM64" (
 
     @REM ARROW_SIMD_LEVEL/ARROW_RUNTIME_SIMD_LEVEL: MAX is valid in Arrow 25+.
     @REM On ARM64 Windows this resolves to NEON at runtime.
-    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=MAX -DARROW_RUNTIME_SIMD_LEVEL=MAX -DARROW_WITH_UTF8PROC=ON
+    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=NEON -DARROW_WITH_UTF8PROC=ON
 
     @REM xsimd version is pinned in arrow/cpp/thirdparty/versions.txt.
     @REM Arrow fetches and builds it automatically via FetchContent.
