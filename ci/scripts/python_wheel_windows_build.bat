@@ -34,17 +34,17 @@ if "%arch%"=="ARM64" (
     set VCPKG_TARGET_TRIPLET=arm64-windows-static-md
     set ARROW_SRC=%GITHUB_WORKSPACE%\arrow
     set ARROW_DIST=%GITHUB_WORKSPACE%\arrow-dist
-    set XSIMD_DIR=%GITHUB_WORKSPACE%\xsimd
 
     set CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
     set UTF8PROC_SOURCE=-Dutf8proc_SOURCE=BUNDLED
 
-    REM Enable xsimd on ARM64 using pinned v13.2.0 checkout
-    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=DEFAULT -DARROW_RUNTIME_SIMD_LEVEL=DEFAULT -DARROW_WITH_UTF8PROC=ON
+    @REM ARROW_SIMD_LEVEL/ARROW_RUNTIME_SIMD_LEVEL: MAX is valid in Arrow 25+.
+    @REM On ARM64 Windows this resolves to NEON at runtime.
+    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=MAX -DARROW_RUNTIME_SIMD_LEVEL=MAX -DARROW_WITH_UTF8PROC=ON
 
-    REM FIX 1: Use BUNDLED so Arrow uses FetchContent instead of find_package.
-    REM FIX 2: Point FetchContent at the pre-cloned local directory to avoid a network download.
-    set XSIMD_SOURCE=-Dxsimd_SOURCE=BUNDLED -DFETCHCONTENT_SOURCE_DIR_XSIMD=%GITHUB_WORKSPACE%\xsimd
+    @REM xsimd version is pinned in arrow/cpp/thirdparty/versions.txt.
+    @REM Arrow fetches and builds it automatically via FetchContent.
+    set XSIMD_SOURCE=-Dxsimd_SOURCE=BUNDLED
 ) else (
     set CMAKE_PLATFORM=x64
     set VCVARS_BAT=C:\Program Files ^(x86^)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
@@ -67,16 +67,6 @@ del /s /q C:\arrow\python\pyarrow\*.so.*
 
 call "%VCVARS_BAT%"
 @echo on
-
-if "%arch%"=="ARM64" (
-    if not exist "%XSIMD_DIR%" (
-        echo "Cloning xsimd 13.2.0..."
-        @REM FIX 3: Pin to tag 13.2.0 instead of cloning HEAD for reproducible builds.
-        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /B 1
-    ) else (
-        echo "Using existing xsimd checkout at %XSIMD_DIR%"
-    )
-)
 
 echo "=== (%PYTHON%) Building Arrow C++ libraries ==="
 
@@ -117,7 +107,7 @@ cmake ^
      %CMAKE_TOOLCHAIN% ^
     -DCMAKE_BUILD_TYPE=%CMAKE_BUILD_TYPE% ^
     -DCMAKE_INSTALL_PREFIX=%ARROW_DIST% ^
-    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=%CMAKE_INTERPROCEDULAR_OPTIMIZATION% ^
+    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=%CMAKE_INTERPROCEDURAL_OPTIMIZATION% ^
     -DCMAKE_UNITY_BUILD=%CMAKE_UNITY_BUILD% ^
      %UTF8PROC_SOURCE% ^
      %ARROW_SIMD_OPTIONS% ^
