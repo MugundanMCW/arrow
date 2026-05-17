@@ -72,7 +72,7 @@ if "%arch%"=="ARM64" (
     if not exist "%XSIMD_DIR%" (
         echo "Cloning xsimd 13.2.0..."
         @REM FIX 3: Pin to tag 13.2.0 instead of cloning HEAD for reproducible builds.
-        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /
+        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /B 1
     ) else (
         echo "Using existing xsimd checkout at %XSIMD_DIR%"
     )
