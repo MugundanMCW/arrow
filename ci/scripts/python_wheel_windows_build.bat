@@ -39,9 +39,12 @@ if "%arch%"=="ARM64" (
     set CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
     set UTF8PROC_SOURCE=-Dutf8proc_SOURCE=BUNDLED
 
-    REM Enable xsimd on ARM64 using latest checkout
+    REM Enable xsimd on ARM64 using pinned v13.2.0 checkout
     set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=DEFAULT -DARROW_RUNTIME_SIMD_LEVEL=DEFAULT -DARROW_WITH_UTF8PROC=ON
-    set XSIMD_SOURCE=-Dxsimd_SOURCE=%XSIMD_DIR%
+
+    REM FIX 1: Use BUNDLED so Arrow uses FetchContent instead of find_package.
+    REM FIX 2: Point FetchContent at the pre-cloned local directory to avoid a network download.
+    set XSIMD_SOURCE=-Dxsimd_SOURCE=BUNDLED -DFETCHCONTENT_SOURCE_DIR_XSIMD=%GITHUB_WORKSPACE%\xsimd
 ) else (
     set CMAKE_PLATFORM=x64
     set VCVARS_BAT=C:\Program Files ^(x86^)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
@@ -67,8 +70,9 @@ call "%VCVARS_BAT%"
 
 if "%arch%"=="ARM64" (
     if not exist "%XSIMD_DIR%" (
-        echo "Cloning latest xsimd..."
-        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /B 1
+        echo "Cloning xsimd 13.2.0..."
+        @REM FIX 3: Pin to tag 13.2.0 instead of cloning HEAD for reproducible builds.
+        git clone --depth 1 https://github.com/xtensor-stack/xsimd.git "%XSIMD_DIR%" || exit /
     ) else (
         echo "Using existing xsimd checkout at %XSIMD_DIR%"
     )
