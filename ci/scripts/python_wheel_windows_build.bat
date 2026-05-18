@@ -41,6 +41,8 @@ if "%arch%"=="ARM64" (
 
     @REM ARM64-specific SIMD flags set individually to avoid bat variable
     @REM expansion issues with multiple -DKEY=VALUE pairs in one variable.
+    set ARROW_SIMD_LEVEL=NEON
+    set ARROW_RUNTIME_SIMD_LEVEL=MAX
 ) else (
     set CMAKE_PLATFORM=x64
     set VCVARS_BAT=C:\Program Files ^(x86^)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
