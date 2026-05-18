@@ -37,14 +37,12 @@ if "%arch%"=="ARM64" (
 
     set CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
     set UTF8PROC_SOURCE=-Dutf8proc_SOURCE=BUNDLED
-
-    @REM ARROW_SIMD_LEVEL/ARROW_RUNTIME_SIMD_LEVEL: MAX is valid in Arrow 25+.
-    @REM On ARM64 Windows this resolves to NEON at runtime.
-    set ARROW_SIMD_OPTIONS=-DARROW_SIMD_LEVEL=NEON -DARROW_WITH_UTF8PROC=ON
-
-    @REM xsimd version is pinned in arrow/cpp/thirdparty/versions.txt.
-    @REM Arrow fetches and builds it automatically via FetchContent.
     set XSIMD_SOURCE=-Dxsimd_SOURCE=BUNDLED
+
+    @REM ARM64-specific SIMD flags set individually to avoid bat variable
+    @REM expansion issues with multiple -DKEY=VALUE pairs in one variable.
+    set ARROW_SIMD_LEVEL=NEON
+    set ARROW_RUNTIME_SIMD_LEVEL=MAX
 ) else (
     set CMAKE_PLATFORM=x64
     set VCVARS_BAT=C:\Program Files ^(x86^)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
@@ -53,8 +51,9 @@ if "%arch%"=="ARM64" (
     set ARROW_DIST=C:\arrow-dist
     set CMAKE_TOOLCHAIN=
     set UTF8PROC_SOURCE=
-    set ARROW_SIMD_OPTIONS=
     set XSIMD_SOURCE=-Dxsimd_SOURCE=BUNDLED
+    set ARROW_SIMD_LEVEL=DEFAULT
+    set ARROW_RUNTIME_SIMD_LEVEL=MAX
 )
 
 echo "=== (%PYTHON%) Clear output directories and leftovers ==="
@@ -110,7 +109,9 @@ cmake ^
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=%CMAKE_INTERPROCEDURAL_OPTIMIZATION% ^
     -DCMAKE_UNITY_BUILD=%CMAKE_UNITY_BUILD% ^
      %UTF8PROC_SOURCE% ^
-     %ARROW_SIMD_OPTIONS% ^
+    -DARROW_SIMD_LEVEL=%ARROW_SIMD_LEVEL% ^
+    -DARROW_RUNTIME_SIMD_LEVEL=%ARROW_RUNTIME_SIMD_LEVEL% ^
+    -DARROW_WITH_UTF8PROC=ON ^
     -DARROW_AZURE=%ARROW_AZURE% ^
     -DARROW_BUILD_SHARED=ON ^
     -DARROW_BUILD_STATIC=OFF ^
